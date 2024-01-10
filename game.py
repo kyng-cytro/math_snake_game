@@ -5,7 +5,7 @@ pygame.init()
 # constants
 WIDTH = 1500
 HEIGHT = 900
-GAME_SPEED = 15
+GAME_SPEED = 10
 SNAKE_CHUCK = 10
 SNAKE_GAP = 3
 SNAKE_SIZE = 20
@@ -17,7 +17,6 @@ pygame.display.set_caption("Math Snake Game")
 
 fps = pygame.time.Clock()
 
-
 # globals
 direction = "right"
 change_to = direction
@@ -26,8 +25,6 @@ snake_body = [[100, 50],
               [90, 50],
               [80, 50],
               [70, 50],
-              [60, 50],
-              [50, 50]
               ]
 
 
@@ -89,11 +86,20 @@ def main():
         # remove snake length
         snake_body.pop()
 
+        # TODO: add food logic
+
+        # TODO: add fail logic
+
+        # TODO: add boundary logic
+
+        # TODO: make head look different from body
         for pos in snake_body:
             pygame.draw.rect(screen, SNAKE_COLOR,
                              pygame.Rect(pos[0] * SNAKE_GAP, pos[1] * SNAKE_GAP, SNAKE_SIZE, SNAKE_SIZE))
 
         pygame.display.update()
+
+        # TODO: make game speed faster by score?
         fps.tick(GAME_SPEED)
 
 
