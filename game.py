@@ -86,6 +86,8 @@ def main():
         # remove snake length
         snake_body.pop()
 
+        # TODO: add instruction screen
+
         # TODO: add food logic
 
         # TODO: add fail logic
@@ -93,9 +95,9 @@ def main():
         # TODO: add boundary logic
 
         # TODO: make head look different from body
-        for pos in snake_body:
-            pygame.draw.rect(screen, SNAKE_COLOR,
-                             pygame.Rect(pos[0] * SNAKE_GAP, pos[1] * SNAKE_GAP, SNAKE_SIZE, SNAKE_SIZE))
+        for index, pos in enumerate(snake_body):
+            pygame.draw.rect(screen, SNAKE_COLOR if index != 0 else "red",
+                             pygame.Rect(pos[0] * SNAKE_GAP, pos[1] * SNAKE_GAP, SNAKE_SIZE, SNAKE_SIZE if index != 0 else SNAKE_SIZE + 5))
 
         pygame.display.update()
 
