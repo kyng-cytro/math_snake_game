@@ -135,8 +135,6 @@ def main():
 
         # TODO: add food logic
 
-        # TODO: add fail logic
-
         boundary_check()
 
         snake_body_check()
