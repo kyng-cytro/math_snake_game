@@ -1,3 +1,4 @@
+import time
 import pygame
 
 pygame.init()
@@ -25,6 +26,15 @@ snake_body = [[100, 50],
               [90, 50],
               [80, 50],
               [70, 50],
+              [60, 50],
+              [50, 50],
+              [40, 50],
+              [30, 50],
+              [20, 50],
+              [10, 50],
+              [0, 50],
+              [-10, 50],
+              [-20, 50],
               ]
 
 
@@ -51,6 +61,41 @@ def modify_snake_pos():
         snake_position[0] -= SNAKE_CHUCK
     if direction == 'right':
         snake_position[0] += SNAKE_CHUCK
+
+
+def boundary_check():
+    if snake_position[0] < 0 or snake_position[0] * SNAKE_GAP > WIDTH-10:
+        game_over()
+
+    if snake_position[1] < 0 or snake_position[1] * SNAKE_GAP > HEIGHT-10:
+        game_over()
+
+
+def snake_body_check():
+    for block in snake_body[1:]:
+        if snake_position[0] == block[0] and snake_position[1] == block[1]:
+            game_over()
+
+
+def game_over():
+    # creating font object my_font
+    font = pygame.font.SysFont('times new roman', 50)
+
+    game_over_screen = font.render("GAME OVER", True, "red")
+
+    game_over_rect = game_over_screen.get_rect()
+
+    game_over_rect.midtop = (WIDTH//2, HEIGHT//2)
+
+    screen.blit(game_over_screen, game_over_rect)
+
+    pygame.display.flip()
+
+    time.sleep(3)
+
+    pygame.quit()
+
+    quit()
 
 
 def main():
@@ -92,12 +137,14 @@ def main():
 
         # TODO: add fail logic
 
-        # TODO: add boundary logic
+        boundary_check()
+
+        snake_body_check()
 
         # TODO: make head look different from body
         for index, pos in enumerate(snake_body):
             pygame.draw.rect(screen, SNAKE_COLOR if index != 0 else "red",
-                             pygame.Rect(pos[0] * SNAKE_GAP, pos[1] * SNAKE_GAP, SNAKE_SIZE, SNAKE_SIZE if index != 0 else SNAKE_SIZE + 5))
+                             pygame.Rect(pos[0] * SNAKE_GAP, pos[1] * SNAKE_GAP, SNAKE_SIZE if index != 0 else SNAKE_SIZE + 5, SNAKE_SIZE if index != 0 else SNAKE_SIZE + 5))
 
         pygame.display.update()
 
