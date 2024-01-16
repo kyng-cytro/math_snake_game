@@ -141,9 +141,12 @@ def main():
 
         # TODO: make head look different from body
         for index, pos in enumerate(snake_body):
-            pygame.draw.rect(screen, SNAKE_COLOR if index != 0 else "red",
-                             pygame.Rect(pos[0] * SNAKE_GAP, pos[1] * SNAKE_GAP, SNAKE_SIZE if index != 0 else SNAKE_SIZE + 5, SNAKE_SIZE if index != 0 else SNAKE_SIZE + 5))
-
+            if index == 0:
+                pygame.draw.circle(
+                    screen, "red", (pos[0] * SNAKE_GAP + SNAKE_SIZE // 2, pos[1] * SNAKE_GAP + SNAKE_SIZE // 2), SNAKE_SIZE // 2)
+            else:
+                pygame.draw.rect(screen, SNAKE_COLOR,
+                                 pygame.Rect(pos[0] * SNAKE_GAP, pos[1] * SNAKE_GAP, SNAKE_SIZE, SNAKE_SIZE))
         pygame.display.update()
 
         # TODO: make game speed faster by score?
