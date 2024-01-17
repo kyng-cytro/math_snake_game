@@ -1,5 +1,7 @@
+import sys
 import time
 import pygame
+from random import randint
 
 pygame.init()
 
@@ -26,19 +28,13 @@ snake_body = [[100, 50],
               [90, 50],
               [80, 50],
               [70, 50],
-              [60, 50],
-              [50, 50],
-              [40, 50],
-              [30, 50],
-              [20, 50],
-              [10, 50],
-              [0, 50],
-              [-10, 50],
-              [-20, 50],
               ]
 
+food_positions = []
 
 # changes snakes direction
+
+
 def change_snake_direction():
     global direction
     global change_to
@@ -93,9 +89,12 @@ def game_over():
 
     time.sleep(3)
 
-    pygame.quit()
+    exit_game()
 
-    quit()
+
+def exit_game():
+    pygame.quit()
+    sys.exit()
 
 
 def main():
@@ -104,11 +103,13 @@ def main():
     global snake_position
     global snake_body
 
-    running = True
-    while running:
+    current_level = 0
+    current_question = ""
+
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                exit_game()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     change_to = 'up'
@@ -125,6 +126,29 @@ def main():
 
         screen.fill("black")
 
+        seconds = pygame.time.get_ticks() // 1000
+
+        if seconds != 0 and seconds % GAME_SPEED == 0:
+            if seconds != current_level:
+                # clear
+                food_positions.clear()
+
+                num1 = randint(1, 10)
+                num2 = randint(1, 10)
+
+                current_question = f"{num1} + {num2}"  # 5  + 5
+
+                # right answer
+                food_positions.append(
+                    [randint(10, WIDTH-10), randint(10, HEIGHT-10), num1 + num2])  # 10
+
+                # other wrong answers
+                for _ in range(3):
+                    food_positions.append(
+                        [randint(10, WIDTH-10), randint(10, HEIGHT-10), randint(0, 50)])
+
+                current_level = seconds
+
         # add snake length
         snake_body.insert(0, list(snake_position))
 
@@ -133,13 +157,31 @@ def main():
 
         # TODO: add instruction screen
 
-        # TODO: add food logic
-
         boundary_check()
 
         snake_body_check()
 
-        # TODO: make head look different from body
+        # Spawn question
+        question_text = pygame.font.SysFont(
+            "time new roman", 50).render(current_question, True, "white")
+
+        question_text_object = question_text.get_rect(
+            center=(WIDTH // 10, HEIGHT // 14))
+
+        screen.blit(question_text, question_text_object)
+
+        # Spawn food
+        for food in food_positions:
+            answer_object = pygame.draw.rect(screen, "purple",
+                                             pygame.Rect(food[0], food[1], 30, 30))
+            answer_text = pygame.font.SysFont("times new roman", 20).render(
+                f"{food[2]}", True, "black")
+            answer_text_object = answer_text.get_rect(
+                center=answer_object.center)
+
+            screen.blit(answer_text, answer_text_object)
+
+        # Spawn snake
         for index, pos in enumerate(snake_body):
             if index == 0:
                 pygame.draw.circle(
@@ -147,6 +189,7 @@ def main():
             else:
                 pygame.draw.rect(screen, SNAKE_COLOR,
                                  pygame.Rect(pos[0] * SNAKE_GAP, pos[1] * SNAKE_GAP, SNAKE_SIZE, SNAKE_SIZE))
+
         pygame.display.update()
 
         # TODO: make game speed faster by score?
