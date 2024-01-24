@@ -22,8 +22,10 @@ fps = pygame.time.Clock()
 # Globals
 direction = "right"
 change_to = direction
+score = 0
 current_level = 0
 current_question = ""
+current_answer = 0
 snake_position = [100, 50]
 snake_body = [[100, 50], [90, 50], [80, 50], [70, 50]]
 food_positions = []
@@ -45,6 +47,7 @@ def change_snake_direction():
 
 def modify_snake_pos():
     """Modifies snake position based on its direction."""
+    # TODO: - dade declear globals
     if direction == 'up':
         snake_position[1] -= SNAKE_CHUCK
     elif direction == 'down':
@@ -57,12 +60,15 @@ def modify_snake_pos():
 
 def draw_snake():
     """Draws the snake on the screen."""
+    # TODO: - dade declear globals
+
     # add snake length
     grow_snake()
 
     # remove snake last
     snake_body.pop()
 
+    # TODO: make tail triangle
     for index, pos in enumerate(snake_body):
         if index == 0:
             pygame.draw.circle(screen, "red", (pos[0] * SNAKE_GAP + SNAKE_SIZE // 2,
@@ -74,11 +80,13 @@ def draw_snake():
 
 def grow_snake():
     """Increases the length of the snake by adding a new segment at the head."""
+    # TODO: - dade declear globals
     snake_body.insert(0, list(snake_position))
 
 
 def draw_question():
     """Draws the current math question in a box with rounded corners and a calculator icon on the screen."""
+    # TODO: - dade declear globals
     box_width = WIDTH // 6
     box_height = 70
     box_margin = 20
@@ -105,11 +113,42 @@ def draw_question():
     screen.blit(question_text, question_text_rect)
 
 
+def draw_score():
+    """Draws the current math question in a box with rounded corners and a calculator icon on the screen."""
+    global score
+    box_width = WIDTH // 10
+    box_height = 70
+    box_margin = 20
+    border_radius = 15
+
+    box_rect = pygame.Rect(WIDTH - box_width - box_margin,
+                           box_margin, box_width, box_height)
+    pygame.draw.rect(screen, "darkgrey", box_rect, border_radius=border_radius)
+
+    # Load the calculator icon
+    goal_icon = pygame.image.load("assets/goal.svg")
+    goal_icon = pygame.transform.scale(
+        goal_icon, (40, 40))  # Adjust the size as needed
+
+    # Position the calculator icon
+    icon_rect = goal_icon.get_rect(
+        topleft=(box_rect.x + 10, box_rect.y + 15))
+    screen.blit(goal_icon, icon_rect)
+
+    score_text = pygame.font.SysFont(
+        "roboto Mono", 50).render(f"{score}", True, "white")
+    score_text_rect = score_text.get_rect(
+        topleft=(icon_rect.right + 10, box_rect.y + 18))
+
+    screen.blit(score_text, score_text_rect)
+
+
 def draw_food():
     """Draws the food items on the screen."""
-    for food in food_positions:
+    # TODO: - dade declear globals
+    for i, food in enumerate(food_positions):
         answer_object = pygame.draw.rect(
-            screen, "purple", pygame.Rect(food[0], food[1], 30, 30))
+            screen,  "purple" if i != 0 else "red", pygame.Rect(food[0], food[1], 30, 30))
         answer_text = pygame.font.SysFont(
             "times new roman", 20).render(f"{food[2]}", True, "black")
         answer_text_object = answer_text.get_rect(center=answer_object.center)
@@ -125,11 +164,12 @@ def game_over():
     screen.blit(game_over_screen, game_over_rect)
     pygame.display.flip()
     time.sleep(3)
-    exit_game()
+    main()
 
 
 def boundary_check():
     """Checks if the snake has hit the game boundaries."""
+    # TODO: - dade declear globals
     if snake_position[0] < 0 or snake_position[0] * SNAKE_GAP > WIDTH - 10 or \
             snake_position[1] < 0 or snake_position[1] * SNAKE_GAP > HEIGHT - 10:
         game_over()
@@ -137,9 +177,29 @@ def boundary_check():
 
 def snake_body_check():
     """Checks if the snake has collided with itself."""
+    # TODO: - dade declear globals
     for block in snake_body[1:]:
-        if snake_position[0] + SNAKE_GAP == block[0] + SNAKE_GAP and snake_position[1] + SNAKE_GAP == block[1] + SNAKE_GAP:
+        if snake_position[0] * SNAKE_GAP == block[0] * SNAKE_GAP and snake_position[1] * SNAKE_GAP == block[1] * SNAKE_GAP:
             game_over()
+
+
+def food_check():
+    """Checks if the snake has collided with food items."""
+    global score
+    global food_positions
+    global snake_position
+    for food in food_positions:
+        food_x, food_y = food[0], food[1]
+        snake_x, snake_y = snake_position[0] * \
+            SNAKE_GAP, snake_position[1] * SNAKE_GAP
+
+        if (food_x - 30 <= snake_x <= food_x + 30 and food_y - 30 <= snake_y <= food_y + 30):
+            if (food[2] == current_answer):
+                score += 10
+            else:
+                grow_snake()
+            food_positions.clear()
+            break
 
 
 def game_logic():
@@ -148,21 +208,26 @@ def game_logic():
     modify_snake_pos()
     boundary_check()
     snake_body_check()
+    food_check()
     spawn_food()
 
 
 def spawn_food():
     """Spawns food items on the screen based on the current level."""
     global current_level
+    global current_question
+    global current_answer
+    # TODO: add a way to reset clock
     seconds = pygame.time.get_ticks() // 1000
     if seconds % GAME_SPEED == 0 and seconds != current_level:
         grow_snake()
         food_positions.clear()
         num1, num2 = randint(1, 10), randint(1, 10)
-        global current_question
         current_question = f"{num1} + {num2}"
+        current_answer = num1 + num2
+        # TODO: prevent spawning on card
         food_positions.append(
-            [randint(10, WIDTH - 10), randint(10, HEIGHT - 10), num1 + num2])
+            [randint(10, WIDTH - 10), randint(10, HEIGHT - 10), current_answer])
         for _ in range(3):
             food_positions.append(
                 [randint(10, WIDTH - 10), randint(10, HEIGHT - 10), randint(0, 50)])
@@ -170,6 +235,7 @@ def spawn_food():
 
 
 def reset():
+    global score
     global change_to
     global direction
     global snake_position
@@ -178,6 +244,7 @@ def reset():
     global current_question
     global food_positions
 
+    score = 0
     direction = "right"
     change_to = direction
     current_level = 0
@@ -226,6 +293,9 @@ def main():
 
         # show question
         draw_question()
+
+        # show score
+        draw_score()
 
         # show answers
         draw_food()
