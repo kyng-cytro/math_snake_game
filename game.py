@@ -57,6 +57,12 @@ def modify_snake_pos():
 
 def draw_snake():
     """Draws the snake on the screen."""
+    # add snake length
+    grow_snake()
+
+    # remove snake last
+    snake_body.pop()
+
     for index, pos in enumerate(snake_body):
         if index == 0:
             pygame.draw.circle(screen, "red", (pos[0] * SNAKE_GAP + SNAKE_SIZE // 2,
@@ -66,9 +72,14 @@ def draw_snake():
                              pygame.Rect(pos[0] * SNAKE_GAP, pos[1] * SNAKE_GAP, SNAKE_SIZE, SNAKE_SIZE))
 
 
+def grow_snake():
+    """Increases the length of the snake by adding a new segment at the head."""
+    snake_body.insert(0, list(snake_position))
+
+
 def draw_question():
     """Draws the current math question in a box with rounded corners and a calculator icon on the screen."""
-    box_width = WIDTH // 9
+    box_width = WIDTH // 6
     box_height = 70
     box_margin = 20
     border_radius = 15
@@ -127,7 +138,7 @@ def boundary_check():
 def snake_body_check():
     """Checks if the snake has collided with itself."""
     for block in snake_body[1:]:
-        if snake_position[0] == block[0] and snake_position[1] == block[1]:
+        if snake_position[0] + SNAKE_GAP == block[0] + SNAKE_GAP and snake_position[1] + SNAKE_GAP == block[1] + SNAKE_GAP:
             game_over()
 
 
@@ -145,6 +156,7 @@ def spawn_food():
     global current_level
     seconds = pygame.time.get_ticks() // 1000
     if seconds % GAME_SPEED == 0 and seconds != current_level:
+        grow_snake()
         food_positions.clear()
         num1, num2 = randint(1, 10), randint(1, 10)
         global current_question
@@ -205,12 +217,6 @@ def main():
                     change_to = 'left'
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     change_to = 'right'
-
-         # add snake length
-        snake_body.insert(0, list(snake_position))
-
-        # remove snake length
-        snake_body.pop()
 
         # load game logic
         game_logic()
