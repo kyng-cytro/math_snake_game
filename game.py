@@ -12,7 +12,14 @@ GAME_SPEED = 10
 SNAKE_CHUCK = 10
 SNAKE_GAP = 3
 SNAKE_SIZE = 20
-SNAKE_COLOR = "green"
+FOOD_BACKGROUND_COLOR = "lightgray"
+FOOD_TEXT_COLOR = "black"
+CARD_BACKGROUND_COLOR = "darkgrey"
+CARD_TEXT_COLOR = "white"
+BACKDROP_COLOR = "black"
+SNAKE_HEAD_COLOR = "red"
+SNAKE_BODY_COLOR = "green"
+
 
 # Initialization
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -44,10 +51,10 @@ def draw_snake():
         y = pos[1] * SNAKE_GAP
         if index == 0:
             pygame.draw.circle(
-                screen, "red", (x + SNAKE_SIZE // 2, y + SNAKE_SIZE // 2), SNAKE_SIZE // 2)
+                screen, SNAKE_HEAD_COLOR, (x + SNAKE_SIZE // 2, y + SNAKE_SIZE // 2), SNAKE_SIZE // 2)
 
         else:
-            pygame.draw.rect(screen, SNAKE_COLOR,
+            pygame.draw.rect(screen, SNAKE_BODY_COLOR,
                              pygame.Rect(x, y, SNAKE_SIZE, SNAKE_SIZE))
 
 
@@ -59,12 +66,13 @@ def draw_question():
     border_radius = 15
 
     box_rect = pygame.Rect(box_margin, box_margin, box_width, box_height)
-    pygame.draw.rect(screen, "darkgrey", box_rect, border_radius=border_radius)
+    pygame.draw.rect(screen, CARD_BACKGROUND_COLOR,
+                     box_rect, border_radius=border_radius)
 
     # Load the calculator icon
     calculator_icon = pygame.image.load("assets/calculator.svg")
     calculator_icon = pygame.transform.scale(
-        calculator_icon, (40, 40))  # Adjust the size as needed
+        calculator_icon, (40, 40))
 
     # Position the calculator icon
     icon_rect = calculator_icon.get_rect(
@@ -72,10 +80,9 @@ def draw_question():
     screen.blit(calculator_icon, icon_rect)
 
     question_text = pygame.font.SysFont(
-        "roboto Mono", 50).render(current_question["question"], True, "white")
+        "roboto Mono", 50).render(current_question["question"], True, CARD_TEXT_COLOR)
     question_text_rect = question_text.get_rect(
-        topleft=(icon_rect.right + 10, box_margin + 18))   # Adjust vertical position
-
+        topleft=(icon_rect.right + 10, box_margin + 18))
     screen.blit(question_text, question_text_rect)
 
 
@@ -89,20 +96,21 @@ def draw_score():
 
     box_rect = pygame.Rect(WIDTH - box_width - box_margin,
                            box_margin, box_width, box_height)
-    pygame.draw.rect(screen, "darkgrey", box_rect, border_radius=border_radius)
+    pygame.draw.rect(screen, CARD_BACKGROUND_COLOR,
+                     box_rect, border_radius=border_radius)
 
-    # Load the calculator icon
+    # Load the goal icon
     goal_icon = pygame.image.load("assets/goal.svg")
     goal_icon = pygame.transform.scale(
-        goal_icon, (40, 40))  # Adjust the size as needed
+        goal_icon, (40, 40))
 
-    # Position the calculator icon
+    # Position the goal icon
     icon_rect = goal_icon.get_rect(
         topleft=(box_rect.x + 10, box_rect.y + 15))
     screen.blit(goal_icon, icon_rect)
 
     score_text = pygame.font.SysFont(
-        "roboto Mono", 50).render(f"{score}", True, "white")
+        "roboto Mono", 50).render(f"{score}", True, CARD_TEXT_COLOR)
     score_text_rect = score_text.get_rect(
         topleft=(icon_rect.right + 10, box_rect.y + 18))
 
@@ -113,9 +121,9 @@ def draw_food():
     """Draws the food items on the screen."""
     for food in food_positions:
         answer_object = pygame.draw.rect(
-            screen,  "lightgray", pygame.Rect(food[0], food[1], 30, 30), border_radius=15)
+            screen,  FOOD_BACKGROUND_COLOR, pygame.Rect(food[0], food[1], 30, 30), border_radius=15)
         answer_text = pygame.font.SysFont(
-            "roboto Mono", 25).render(f"{food[2]}", True, "black")
+            "roboto Mono", 25).render(f"{food[2]}", True, FOOD_TEXT_COLOR)
         answer_text_object = answer_text.get_rect(center=answer_object.center)
         screen.blit(answer_text, answer_text_object)
 
@@ -327,7 +335,7 @@ def main():
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     change_to = 'right'
 
-        screen.fill("black")
+        screen.fill(BACKDROP_COLOR)
 
         # switch snake direction
         change_snake_direction()
