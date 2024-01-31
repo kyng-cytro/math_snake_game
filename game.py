@@ -49,13 +49,8 @@ def draw_snake():
     for index, pos in enumerate(snake_body):
         x = pos[0] * SNAKE_GAP
         y = pos[1] * SNAKE_GAP
-        if index == 0:
-            pygame.draw.circle(
-                screen, SNAKE_HEAD_COLOR, (x + SNAKE_SIZE // 2, y + SNAKE_SIZE // 2), SNAKE_SIZE // 2)
-
-        else:
-            pygame.draw.rect(screen, SNAKE_BODY_COLOR,
-                             pygame.Rect(x, y, SNAKE_SIZE, SNAKE_SIZE))
+        pygame.draw.rect(screen, SNAKE_HEAD_COLOR if index == 0 else SNAKE_BODY_COLOR,
+                         position_to_rect(x, y, SNAKE_SIZE), border_radius=20 if index == 0 else 0)
 
 
 def draw_question():
@@ -121,7 +116,7 @@ def draw_food():
     """Draws the food items on the screen."""
     for food in food_positions:
         answer_object = pygame.draw.rect(
-            screen,  FOOD_BACKGROUND_COLOR, pygame.Rect(food[0], food[1], 30, 30), border_radius=15)
+            screen,  FOOD_BACKGROUND_COLOR, position_to_rect(food[0], food[1], 30), border_radius=20)
         answer_text = pygame.font.SysFont(
             "roboto Mono", 25).render(f"{food[2]}", True, FOOD_TEXT_COLOR)
         answer_text_object = answer_text.get_rect(center=answer_object.center)
@@ -139,7 +134,10 @@ def boundary_check():
 def snake_body_check():
     """Checks if the snake has collided with itself."""
     for block in snake_body[1:]:
-        if snake_position[0] * SNAKE_GAP == block[0] * SNAKE_GAP and snake_position[1] * SNAKE_GAP == block[1] * SNAKE_GAP:
+        head = position_to_rect(
+            snake_position[0], snake_position[1], SNAKE_SIZE, SNAKE_GAP)
+        body = position_to_rect(block[0], block[1], SNAKE_SIZE, SNAKE_GAP)
+        if head.colliderect(body):
             game_over()
 
 
@@ -150,10 +148,10 @@ def food_check():
     global snake_position
     for food in food_positions:
         food_x, food_y = food[0], food[1]
-        snake_x, snake_y = snake_position[0] * \
-            SNAKE_GAP, snake_position[1] * SNAKE_GAP
-
-        if (food_x - 30 <= snake_x <= food_x + 30 and food_y - 30 <= snake_y <= food_y + 30):
+        snake_x, snake_y = snake_position[0], snake_position[1]
+        foodRect = position_to_rect(food_x, food_y, 30)
+        snakeRect = position_to_rect(snake_x, snake_y, SNAKE_SIZE, SNAKE_GAP)
+        if foodRect.colliderect(snakeRect):
             if (food[2] == current_question['answer']):
                 score += 10
             else:
@@ -164,6 +162,13 @@ def food_check():
 
 
 # Helpers
+def position_to_rect(x, y, size, gap=1):
+    """
+    Converts a position (x, y) to a pygame Rect object with the specified size and gap.
+    """
+    return pygame.Rect(x*gap, y*gap, size, size)
+
+
 def change_snake_direction():
     """Changes snake direction based on user input."""
     global direction
