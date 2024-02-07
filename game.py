@@ -6,6 +6,7 @@ from random import randint, choice
 pygame.init()
 
 # Constants
+NAME = "Snake Game"
 WIDTH = 1500
 HEIGHT = 900
 GAME_SPEED = 10
@@ -23,10 +24,11 @@ SNAKE_BODY_COLOR = "green"
 
 # Initialization
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Math Snake Game")
+pygame.display.set_caption(NAME)
 fps = pygame.time.Clock()
 
 # Globals
+instructions = True
 direction = "right"
 change_to = direction
 score = 0
@@ -121,6 +123,40 @@ def draw_food():
             "roboto Mono", 25).render(f"{food[2]}", True, FOOD_TEXT_COLOR)
         answer_text_object = answer_text.get_rect(center=answer_object.center)
         screen.blit(answer_text, answer_text_object)
+
+
+def draw_instructions():
+    font = pygame.font.Font(None, 24)
+
+    # Banner
+    banner_text = font.render("Math Snake Game", True, "white")
+    banner_rect = banner_text.get_rect(center=(WIDTH // 2, 100))
+
+    # Instructions paragraph
+    instructions_lines = [
+        "Welcome to Math Snake Game! Eat the numbers by answering the math questions correctly. ",
+        "Use arrow keys to navigate. Avoid collisions with the walls and yourself. ",
+        "Have fun and improve your math skills!",
+    ]
+
+    # Padding for the text boxes
+    padding = 20
+
+    # Banner box
+    pygame.draw.rect(screen, "gray", banner_rect.inflate(
+        50, 50), border_radius=8)
+    screen.blit(banner_text, banner_rect)
+
+    # Instructions box
+    instructions_surfaces = [font.render(
+        line, True, "white") for line in instructions_lines]
+    instructions_rects = [surface.get_rect(center=(
+        WIDTH // 2, 200 + i * 40)) for i, surface in enumerate(instructions_surfaces)]
+
+    for surface, rect in zip(instructions_surfaces, instructions_rects):
+        pygame.draw.rect(screen, "gray", rect.inflate(
+            padding, padding), border_radius=8)
+        screen.blit(surface, rect)
 
 
 # Checks
@@ -315,12 +351,10 @@ def main():
     global snake_body
     global current_level
     global current_question
+    global instructions
 
     # reset for new game
     reset()
-
-    # start timer
-    pygame.time.set_timer(food_event, 5000)
 
     while True:
         for event in pygame.event.get():
@@ -329,6 +363,12 @@ def main():
 
             if event.type == food_event:
                 spawn_food()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if (instructions):
+                    # start timer
+                    pygame.time.set_timer(food_event, 5000)
+                    instructions = False
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP or event.key == pygame.K_w:
@@ -340,34 +380,39 @@ def main():
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     change_to = 'right'
 
-        screen.fill(BACKDROP_COLOR)
+        if instructions:
+            screen.fill("black")
+            draw_instructions()
 
-        # switch snake direction
-        change_snake_direction()
+        if not instructions:
+            screen.fill(BACKDROP_COLOR)
 
-        # move snake
-        modify_snake_pos()
+            # switch snake direction
+            change_snake_direction()
 
-        # check if snake touching edges
-        boundary_check()
+            # move snake
+            modify_snake_pos()
 
-        # check if snake touching self
-        snake_body_check()
+            # check if snake touching edges
+            boundary_check()
 
-        # check if snake touching food
-        food_check()
+            # check if snake touching self
+            snake_body_check()
 
-        # show question
-        draw_question()
+            # check if snake touching food
+            food_check()
 
-        # show score
-        draw_score()
+            # show question
+            draw_question()
 
-        # show answers
-        draw_food()
+            # show score
+            draw_score()
 
-        # show snake
-        draw_snake()
+            # show answers
+            draw_food()
+
+            # show snake
+            draw_snake()
 
         pygame.display.update()
 
