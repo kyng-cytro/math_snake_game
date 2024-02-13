@@ -1,5 +1,4 @@
 import sys
-import time
 import pygame
 from button import Button
 from random import randint, choice
@@ -10,7 +9,7 @@ pygame.init()
 NAME = "Snake Game"
 WIDTH = 1280
 HEIGHT = 720
-GAME_SPEED = 10
+GAME_SPEED = 7
 SNAKE_CHUCK = 10
 SNAKE_GAP = 3
 SNAKE_SIZE = 20
@@ -87,7 +86,7 @@ def draw_question():
 def draw_score():
     """Draws the current math question in a box with rounded corners and a calculator icon on the screen."""
     global score
-    box_width = WIDTH // 10
+    box_width = WIDTH // 8
     box_height = 70
     box_margin = 20
     border_radius = 15
@@ -243,7 +242,7 @@ def generate_random_question():
         num2 = randint(1, min(10, num1))
         answer = num1 // num2
 
-    return f"{num1} {operator} {num2}", answer
+    return f"{num1}{operator}{num2}", answer
 
 
 def generate_wrong_options(correct_answer):
@@ -317,7 +316,7 @@ def play():
     reset()
 
     # start timer
-    pygame.time.set_timer(food_event, 5000)
+    pygame.time.set_timer(food_event, 10000)
 
     while True:
         for event in pygame.event.get():
@@ -345,18 +344,29 @@ def play():
 
 
 def help():
+    """Shows help message"""
     while True:
         HELP_MOUSE_POS = pygame.mouse.get_pos()
 
         screen.fill("white")
 
         HELP_TEXT = get_font(45).render(
-            "This is the OPTIONS screen.", True, "Black")
+            "Eat right answers,", True, "black")
         HELP_RECT = HELP_TEXT.get_rect(center=(640, 260))
         screen.blit(HELP_TEXT, HELP_RECT)
 
-        HELP_BACK = Button(image=None, pos=(640, 460),
-                           text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
+        HELP_TEXT1 = get_font(45).render(
+            "avoid walls.", True, "black")
+        HELP_RECT1 = HELP_TEXT1.get_rect(center=(640, 320))
+        screen.blit(HELP_TEXT1, HELP_RECT1)
+
+        HELP_TEXT2 = get_font(45).render(
+            "Improve math skills!", True, "black")
+        HELP_RECT2 = HELP_TEXT2.get_rect(center=(640, 380))
+        screen.blit(HELP_TEXT2, HELP_RECT2)
+
+        HELP_BACK = Button(image=None, pos=(640, 550),
+                           text_input="BACK", font=get_font(75), base_color="black", hovering_color="Green")
 
         HELP_BACK.changeColor(HELP_MOUSE_POS)
         HELP_BACK.update(screen)
