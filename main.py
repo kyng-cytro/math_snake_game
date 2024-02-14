@@ -4,6 +4,7 @@ from button import Button
 from random import randint, choice
 
 pygame.init()
+pygame.mixer.init()
 
 # Constants
 NAME = "Snake Game"
@@ -67,7 +68,7 @@ def draw_question():
                      box_rect, border_radius=border_radius)
 
     # Load the calculator icon
-    calculator_icon = pygame.image.load("assets/calculator.svg")
+    calculator_icon = pygame.image.load("assets/Calculator.svg")
     calculator_icon = pygame.transform.scale(
         calculator_icon, (40, 40))
 
@@ -97,7 +98,7 @@ def draw_score():
                      box_rect, border_radius=border_radius)
 
     # Load the goal icon
-    goal_icon = pygame.image.load("assets/goal.svg")
+    goal_icon = pygame.image.load("assets/Goal.svg")
     goal_icon = pygame.transform.scale(
         goal_icon, (40, 40))
 
@@ -129,7 +130,7 @@ def boundary_check():
     """Checks if the snake has hit the game boundaries."""
     if snake_position[0] < 0 or snake_position[0] * SNAKE_GAP > WIDTH - 10 or \
             snake_position[1] < 0 or snake_position[1] * SNAKE_GAP > HEIGHT - 10:
-        main_menu()
+        game_over()
 
 
 def snake_body_check():
@@ -139,7 +140,7 @@ def snake_body_check():
             snake_position[0], snake_position[1], SNAKE_SIZE, SNAKE_GAP)
         body = position_to_rect(block[0], block[1], SNAKE_SIZE, SNAKE_GAP)
         if head.colliderect(body):
-            main_menu()
+            game_over()
 
 
 def food_check():
@@ -155,8 +156,12 @@ def food_check():
         if foodRect.colliderect(snakeRect):
             if (food[2] == current_question['answer']):
                 score += 10
+                pygame.mixer.music.load("assets/Correct.mp3")
+                pygame.mixer.music.play()
             else:
                 grow_snake()
+                pygame.mixer.music.load("assets/Wrong.mp3")
+                pygame.mixer.music.play()
 
             food_positions.clear()
             break
@@ -230,7 +235,7 @@ def generate_random_question():
     """Generates a random arithmetic question."""
     num1 = randint(1, 10)
     num2 = randint(1, 10)
-    operator = choice(['+', '-', 'x', '/'])
+    operator = choice(['+', '-', 'x', '÷'])
 
     if operator == '+':
         answer = num1 + num2
@@ -242,7 +247,7 @@ def generate_random_question():
         num2 = randint(1, min(10, num1))
         answer = num1 // num2
 
-    return f"{num1}{operator}{num2}", answer
+    return f"{num1} {operator} {num2}", answer
 
 
 def generate_wrong_options(correct_answer):
@@ -382,6 +387,12 @@ def help():
         pygame.display.update()
 
 
+def game_over():
+    pygame.mixer.music.load("assets/GameOver.mp3")
+    pygame.mixer.music.play()
+    main_menu()
+
+
 def main_menu():
     while True:
         screen.blit(BG, (0, 0))
@@ -391,11 +402,11 @@ def main_menu():
         MENU_TEXT = get_font(100).render(NAME.upper(), True, "#b68f40")
         MENU_RECT = MENU_TEXT.get_rect(center=(640, 100))
 
-        PLAY_BUTTON = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(640, 250),
+        PLAY_BUTTON = Button(image=pygame.image.load("assets/PlayRect.png"), pos=(640, 250),
                              text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        HELP_BUTTON = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(640, 400),
+        HELP_BUTTON = Button(image=pygame.image.load("assets/PlayRect.png"), pos=(640, 400),
                              text_input="HELP", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        QUIT_BUTTON = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(640, 550),
+        QUIT_BUTTON = Button(image=pygame.image.load("assets/QuitRect.png"), pos=(640, 550),
                              text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
 
         screen.blit(MENU_TEXT, MENU_RECT)
