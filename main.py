@@ -6,11 +6,11 @@ from random import randint, choice
 pygame.init()
 pygame.mixer.init()
 
+
 # Constants
 NAME = "Snake Game"
 WIDTH = 1280
 HEIGHT = 720
-GAME_SPEED = 7
 SNAKE_CHUCK = 10
 SNAKE_GAP = 3
 SNAKE_SIZE = 20
@@ -29,7 +29,8 @@ pygame.display.set_caption(NAME)
 fps = pygame.time.Clock()
 
 # Globals
-instructions = True
+game_speed = 7
+food_speed = 10000
 direction = "right"
 change_to = direction
 score = 0
@@ -158,6 +159,7 @@ def food_check():
                 score += 10
                 pygame.mixer.music.load("assets/Correct.mp3")
                 pygame.mixer.music.play()
+
             else:
                 grow_snake()
                 pygame.mixer.music.load("assets/Wrong.mp3")
@@ -180,7 +182,7 @@ def init_game_logic():
     draw_snake()
 
 
-def get_font(size):  # Returns Press-Start-2P in the desired size
+def get_font(size):
     return pygame.font.Font("assets/font.ttf", size)
 
 
@@ -266,8 +268,14 @@ def generate_wrong_options(correct_answer):
 
 def spawn_food():
     """Spawns food items on the screen based on the current level."""
+    global game_speed
+    global food_speed
     global current_question
     grow_snake()
+    game_speed += 1
+    food_speed -= 100
+    pygame.time.set_timer(food_event,  food_speed)
+
     food_positions.clear()
     current_question['question'], current_question['answer'] = generate_random_question()
     wrong_options = generate_wrong_options(current_question['answer'])
@@ -291,8 +299,12 @@ def reset():
     global current_level
     global current_question
     global food_positions
+    global game_speed
+    global food_speed
 
     score = 0
+    game_speed = 7
+    food_speed = 10000
     direction = "right"
     change_to = direction
     current_question = {"question": "", "answer": 0}
@@ -321,7 +333,7 @@ def play():
     reset()
 
     # start timer
-    pygame.time.set_timer(food_event, 10000)
+    pygame.time.set_timer(food_event,  10000)
 
     while True:
         for event in pygame.event.get():
@@ -345,7 +357,7 @@ def play():
 
         pygame.display.update()
 
-        fps.tick(GAME_SPEED)
+        fps.tick(game_speed)
 
 
 def help():
@@ -431,4 +443,6 @@ def main_menu():
 
 
 if __name__ == "__main__":
+    pygame.mixer.Channel(1).set_volume(0.3)
+    pygame.mixer.Channel(1).play(pygame.mixer.Sound("assets/Loop.mp3"), -1)
     main_menu()
