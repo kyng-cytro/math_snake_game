@@ -1,7 +1,9 @@
 import sys
 import pygame
-from button import Button
+from utils.button import Button
+from datetime import datetime
 from random import randint, choice
+from utils.db import add_new_high_score, get_top_3_scores, is_high_score
 
 pygame.init()
 pygame.mixer.init()
@@ -186,6 +188,10 @@ def get_font(size):
     return pygame.font.Font("assets/font.ttf", size)
 
 
+def parse_datetime(date):
+    return datetime.strptime(date, "%Y-%m-%d %H:%M:%S").strftime('%Y-%m-%d')
+
+
 def position_to_rect(x, y, size, gap=1):
     """
     Converts a position (x, y) to a pygame Rect object with the specified size and gap.
@@ -360,6 +366,43 @@ def play():
         fps.tick(game_speed)
 
 
+def high_scores():
+    """Shows top 3 scores"""
+    scores = get_top_3_scores()
+    while True:
+        screen.blit(BG, (0, 0))
+
+        HIGHSCORE_MOUSE_POS = pygame.mouse.get_pos()
+
+        HIGHSCORE_BACK = Button(image=None, pos=(640, 550),
+                                text_input="BACK TO MENU", font=get_font(75), base_color="black", hovering_color="Green")
+
+        HIGHSCORE_BACK.changeColor(HIGHSCORE_MOUSE_POS)
+        HIGHSCORE_BACK.update(screen)
+
+        MENU_TEXT = get_font(100).render("HIGH SCORE", True, "#b68f40")
+        MENU_RECT = MENU_TEXT.get_rect(center=(640, 100))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if HIGHSCORE_BACK.checkForInput(HIGHSCORE_MOUSE_POS):
+                    main_menu()
+
+        screen.blit(MENU_TEXT, MENU_RECT)
+
+        for i, score in enumerate(scores):
+            SCORE_TEXT = get_font(30).render(
+                f"{i + 1}. {score[1]} @ {parse_datetime(score[2])}", True, "#d7fcd4")
+            SCORE_RECT = SCORE_TEXT.get_rect(
+                center=(640, 260 + (i * 60)))
+            screen.blit(SCORE_TEXT, SCORE_RECT)
+
+        pygame.display.update()
+
+
 def help():
     """Shows help message"""
     while True:
@@ -402,10 +445,17 @@ def help():
 def game_over():
     pygame.mixer.music.load("assets/GameOver.mp3")
     pygame.mixer.music.play()
-    main_menu()
+    if is_high_score(score):
+        pygame.mixer.Channel(1).stop()
+        add_new_high_score(score)
+        high_scores()
+    else:
+        main_menu()
 
 
 def main_menu():
+    pygame.mixer.Channel(1).set_volume(0.3)
+    pygame.mixer.Channel(1).play(pygame.mixer.Sound("assets/Loop.mp3"), -1)
     while True:
         screen.blit(BG, (0, 0))
 
@@ -443,6 +493,4 @@ def main_menu():
 
 
 if __name__ == "__main__":
-    pygame.mixer.Channel(1).set_volume(0.3)
-    pygame.mixer.Channel(1).play(pygame.mixer.Sound("assets/Loop.mp3"), -1)
     main_menu()
